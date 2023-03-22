@@ -38,7 +38,6 @@
                 },
                 "celltype_mappings": {
                     "type": "string",
-                    "default": "./conf/celltype_mappings.tsv",
                     "fa_icon": "fas fa-table",
                     "description": "Optional tsv file specifying manual revisions of cell-type annotations."
                 },
