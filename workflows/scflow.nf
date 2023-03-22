@@ -321,28 +321,30 @@ workflow SCFLOW {
         ch_ctd_path
     )
 
-    SCFLOW_FINALIZE (
-        SCFLOW_MAPCELLTYPES.out.celltype_mapped_sce,
-        ch_celltype_mappings
-    )
-
-    SCFLOW_DGE (
-        SCFLOW_FINALIZE.out.final_sce,
-        params.dge_de_method,
-        SCFLOW_FINALIZE.out.celltypes.splitCsv (
-            header:['celltype', 'n_cells'], skip: 1, sep: '\t'
+    if (params.celltype_mappings) {
+        SCFLOW_FINALIZE (
+            SCFLOW_MAPCELLTYPES.out.celltype_mapped_sce,
+            ch_celltype_mappings
         )
-        .map { row -> tuple(row.celltype, row.n_cells) },
-        ch_ensembl_mappings3
-    )
 
-    SCFLOW_IPA (
-        SCFLOW_DGE.out.de_table
-    )
+        SCFLOW_DGE (
+            SCFLOW_FINALIZE.out.final_sce,
+            params.dge_de_method,
+            SCFLOW_FINALIZE.out.celltypes.splitCsv (
+                header:['celltype', 'n_cells'], skip: 1, sep: '\t'
+            )
+            .map { row -> tuple(row.celltype, row.n_cells) },
+            ch_ensembl_mappings3
+        )
 
-    SCFLOW_DIRICHLET (
-        SCFLOW_FINALIZE.out.final_sce
-    )
+        SCFLOW_IPA (
+            SCFLOW_DGE.out.de_table
+        )
+
+        SCFLOW_DIRICHLET (
+            SCFLOW_FINALIZE.out.final_sce
+        )
+    }
 
     SCFLOW_PLOTREDDIMGENES (
         SCFLOW_CLUSTER.out.clustered_sce,
